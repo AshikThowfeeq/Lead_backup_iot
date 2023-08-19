@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Your head content goes here -->
+</head>
+<body>
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="special-content1">
+  <p>This resolution is not supported.</p>
+</div>
+
+<style>
+/* Styles here */
+</style>
+
+<div class="bulb-container">
+  <div class="row row-cols-1 row-cols-md-2 mt-4">
+    {% for classroom in classrooms %}
+    <div class="col mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ classroom.name }}</h2>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for bulb in classroom.bulb_set.all %}
+            <div class="col-6 col-md-3 mb-4">
+              <div class="bulb">
+                <!-- Bulb content -->
+                <h4>{{ bulb.name }}</h4>
+                <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="pin" value="{{ bulb.pin }}">
+                  <input type="hidden" name="status" id="status-{{ bulb.id }}"
+                    value="{% if bulb.status %}on{% else %}off{% endif %}">
+                  <input type="hidden" name="token" value="{{ bulb.token }}">
+                  <input type="checkbox" id="toggle_checkbox{{bulb.id}}" onclick="toggleSwitch('{{ bulb.id }}')"
+                    {% if bulb.status %}checked{% endif %}>
+                  <label for="toggle_checkbox{{bulb.id}}"></label>
+                </form>
+                <br>
+                <div class="status" data-bulb-id="{{ bulb.id }}">
+                  {% for status in status_data %}
+                  {% if status.id == bulb.id %}
+                  {% if status.status == '0' %}
+                  {% else %}
+                  <div class="lds-ripple"><div></div><div></div></div>
+                  {% endif %}
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+  function toggleSwitch(bulbId) {
+    const switchElement = document.getElementById(`status-${bulbId}`);
+    const currentValue = switchElement.value;
+    switchElement.value = currentValue === 'on' ? 'off' : 'on';
+    document.getElementById(`form-${bulbId}`).submit();
+  }
+
+  function refreshStatus() {
+    $.ajax({
+      url: 'your_json_endpoint',
+      dataType: 'json',
+      success: function(response) {
+        // Process the JSON response and update the status elements
+        response.status_data.forEach(function(status) {
+          const bulbId = status.id;
+          const statusElement = $('.status[data-bulb-id="' + bulbId + '"]');
+          if (statusElement.length) {
+            if (status.status === '0') {
+              statusElement.empty();
+            } else {
+              statusElement.html('<div class="lds-ripple"><div></div><div></div></div>');
+            }
+          }
+        });
+      },
+      complete: function() {
+        // Schedule the next refresh after processing the response
+        setTimeout(refreshStatus, 10000);
+      }
+    });
+  }
+
+  // Initial call to start the refreshing process
+  refreshStatus();
+});
+</script>
+{% endblock %}
+
+</body>
+</html>

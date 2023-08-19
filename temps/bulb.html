@@ -1,0 +1,248 @@
+{% load static %}
+  <style>
+    /* Base styles */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 100px;
+      height: 60px;
+      margin-bottom: 20px;
+    }
+
+    .switch input {
+      display: none;
+    }
+
+    /* Slider styles */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 60px;
+      width: 120px; /* Increase the width as per your requirements */
+      height: 60px; /* Increase the height as per your requirements */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 46px;
+      width: 46px;
+      left: 8px;
+      bottom: 8px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
+    }
+
+    /* Checked state */
+    input:checked + .slider {
+      background-color: green;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(60px);
+    }
+
+    /* Focus state */
+    input:focus + .slider {
+      box-shadow: 0 0 2px 3px rgba(33, 150, 243, 0.3);
+    }
+
+    /* Rounded style */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
+    /* Hover effect */
+    .slider:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add a stronger shadow on hover */
+    }
+
+    /* Active effect */
+    .slider:active:before {
+      transform: scale(0.9);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Revert the shadow on active state */
+    }
+
+    /* Toggle variations */
+    input:checked + .slider.green {
+      background-color: green;
+    }
+
+    input:checked + .slider.blue {
+      background-color: blue;
+    }
+
+    input:checked + .slider.orange {
+      background-color: orange;
+    }
+
+    input:checked + .slider.purple {
+      background-color: purple;
+    }
+
+    /* Pulse loader styles */
+    .pulse-loader {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border: 2px solid red;
+      border-radius: 50%;
+      overflow: hidden;
+      text-indent: 50px;
+      animation: pulse-loader 0.7s linear infinite alternate;
+    }
+
+    .pulse-loader.off {
+      border-color: white;
+      box-shadow: red 0 0 0px 20px;
+    }
+
+    @keyframes pulse-loader {
+      0% {
+        box-shadow: green 0 0 0px 20px;
+      }
+      40% {
+        box-shadow: none;
+      }
+      100% {
+        box-shadow: green 0 0 0px 25px inset;
+      }
+    }
+
+    /* Bulb container styles */
+    .bulb-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Bulb styles */
+    .bulb {
+      width: 18%;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .bulb h3 {
+      margin-bottom: 10px;
+    }
+
+  .status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.loader-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  width: 100px;
+  height: 100px;
+  margin: 20px auto; /* Center the loader box horizontally */
+}
+
+  </style>
+
+  <h2>{{ classroom.name }}</h2>
+
+  <div class="bulb-container">
+    {% for bulb in bulbs %}
+    <div class="bulb">
+      <h3>{{ bulb.name }}</h3>
+      <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' classroom.id bulb.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="pin" value="{{ bulb.pin }}">
+        <input type="hidden" name="status" id="status-{{ bulb.id }}" value="{% if bulb.status %}on{% else %}off{% endif %}">
+      </form>
+      <label class="switch">
+        <input type="checkbox" id="switch-{{ bulb.id }}" {% if bulb.status %}checked{% endif %} onclick="toggleSwitch('{{ bulb.id }}')">
+        <span class="slider"></span>
+      </label>
+      <div class="status">
+        <div class="loader-box">
+          <span id="pulse-loader-{{ bulb.id }}" class="pulse-loader"></span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    let getStatusInterval; // Variable to store the interval ID
+
+    function toggleSwitch(bulbId) {
+      const switchElement = document.getElementById(`switch-${bulbId}`);
+      const statusElement = document.getElementById(`status-${bulbId}`);
+      const formElement = document.getElementById(`form-${bulbId}`);
+
+      if (switchElement.checked) {
+        statusElement.value = 'on';
+      } else {
+        statusElement.value = 'off';
+      }
+
+      formElement.submit();
+    }
+
+    function updateStatus(bulbId, status) {
+      const pulseLoaderElement = document.getElementById(`pulse-loader-${bulbId}`);
+
+      if (pulseLoaderElement) {
+        if (status === '1') {
+          pulseLoaderElement.style.background = 'green';
+        } else {
+          pulseLoaderElement.style.background = 'red';
+        }
+      }
+    }
+
+    function getStatus() {
+      const classroomId = '{{ classroom.id }}';
+      const getStatusUrl = `/classroom/${classroomId}/status/`;
+      fetch(getStatusUrl)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(bulbStatus => {
+            const bulbId = bulbStatus.id;
+            const status = bulbStatus.status;
+            updateStatus(bulbId, status); // Update status immediately
+          });
+        })
+        .catch(error => console.log(error));
+    }
+
+    function startStatusUpdate() {
+      clearInterval(getStatusInterval); // Clear any existing interval
+      getStatus(); // Call immediately
+      getStatusInterval = setInterval(getStatus, 500); // Set the interval
+    }
+
+    function stopStatusUpdate() {
+      clearInterval(getStatusInterval); // Clear the interval
+    }
+
+    window.addEventListener('load', startStatusUpdate);
+
+    window.addEventListener('beforeunload', stopStatusUpdate); // Stop when navigating away
+  </script>
+  <a href="/">Home</a>

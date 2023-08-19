@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<style>
+
+
+    /* Motion Button Styles */
+
+    .card1 {
+      box-sizing: border-box;
+      width: 90%;
+      max-width: 90%;
+      height: auto;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 17px;
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .motion-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .motion {
+      flex: 0 0 auto;
+      margin: 10px;
+    }
+
+    .motion h5 {
+      margin: 0;
+      margin-right: 10px;
+    }
+
+    .motion button {
+      border: none;
+      outline: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .motion button.on {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    .motion button.off {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .motion button:hover {
+      background-color: #333;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .motion button:focus {
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+/* button styles */
+
+.card {
+    box-sizing: border-box;
+    max-width: 500px;
+    height: 254px;
+    margin: 0 auto;
+    box-shadow: 0 0 5px 0 ;
+    background: white;
+    border: 3px solid green;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.5s;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+    font-weight: bolder;
+    color: black;
+    margin-bottom: 20px;
+    /* flex-wrap: wrap; */
+    flex-direction: column;
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+  }
+
+
+  
+
+
+  /* bulb switch */
+
+    * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  p {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 10px;
+    color: #143240;
+    text-align: center;
+    font-size: 14px;
+    font-family: Helvetica, serif;
+  }
+
+  #toggle_checkbox {
+    display: none;
+  }
+
+  label {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    display: block;
+    width: 60px;
+    height: 30px;
+    margin: 0 auto;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  label:before {
+    top: 4px;
+    left: 4px;
+    width: 22px;
+    height: 22px;
+    border: 3px solid red;
+    background-color: red;
+  }
+
+  label:after {
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 30px;
+    border: 3px solid #143240;
+  }
+
+  label:before,
+  label:after {
+    content: "";
+    position: absolute;
+    border-radius: 50px;
+    box-sizing: border-box;
+    transition: 0.5s ease top, 0.5s ease left, 0.5s ease right, 0.5s ease width,
+      0.5s ease height, 0.5s ease border-color, 0.5s ease background-color;
+  }
+
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  {% for classroom in classrooms %}
+  {% for bulb in classroom.bulb_set.all %}
+  #toggle_checkbox{{bulb.id}}:checked + label:before {
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 30px;
+    border-color: #143240;
+    background-color: white;
+  }
+
+  #toggle_checkbox{{bulb.id}}:checked + label:after {
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-color: green;
+    background-color: green;
+  }
+  {% endfor %}
+  {% endfor %}
+
+
+  .status1 {
+    margin-top: 10px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Loading animation */
+  .lds-ripple {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin-left: 18px;
+  }
+
+  .lds-ripple div {
+    position: absolute;
+    border: 4px solid green;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  .lds-ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+
+  @keyframes lds-ripple {
+    0% {
+      top: 27px;
+      left: 27px;
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 54px;
+      height: 54px;
+      opacity: 0;
+    }
+  }
+
+  @media only screen and (device-width: 768px), (device-width: 1024px) {
+  .lds-ripple {
+    margin-left: 0%;
+  }
+  
+  
+}
+@media screen and (max-width: 767px) {
+  /* Select the element you want to hide */
+  .card1 {
+    display: none;
+  }
+  .bulb-container {
+    display: none;
+  }
+
+}
+
+
+</style>
+
+
+
+
+<div class="card1">
+    <h3>Motion Detection</h3>
+    <div class="motion-container">
+      {% for m in motion %}
+        <div class="motion">
+          <h5>{{ m.name }}</h5>
+          <form id="form-motion-{{ m.id }}" method="POST" action="{% url 'update_pin_motion' m.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="pin" value="{{ m.pin }}">
+            <input type="hidden" name="status" id="status-motion-{{ m.id }}"
+              value="{% if m.status %}on{% else %}off{% endif %}">
+            <input type="hidden" name="token" value="{{ m.token }}">
+            <button type="button" onclick="toggleMotion('{{ m.id }}')"
+              id="btn-motion-{{ m.id }}"
+              class="motion-button {% if m.status %}on{% else %}off{% endif %}">
+              {% if m.status %}On{% else %}Off{% endif %}
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bulb-container">
+    <div class="row row-cols-1 row-cols-md-2 mt-3">
+      {% for classroom in classrooms %}
+      <div class="col mb-6">
+        <div class="card">
+          <div class="card-header">
+            <h3>{{ classroom.name }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              {% for bulb in classroom.bulb_set.all %}
+              <div class="col-6 col-md-3 mb-4">
+                <div class="bulb">
+                  <h4>{{ bulb.name }}</h4><br><br><br>
+                  <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="pin" value="{{ bulb.pin }}">
+                    <input type="hidden" name="status" id="status-{{ bulb.id }}"
+                      value="{% if bulb.status %}on{% else %}off{% endif %}">
+                    <input type="hidden" name="token" value="{{ bulb.token }}">
+                    <input type="checkbox" id="toggle_checkbox{{bulb.id}}" onclick="toggleSwitch('{{ bulb.id }}')"
+                      {% if bulb.status %}checked{% endif %}>
+                    <label for="toggle_checkbox{{bulb.id}}"></label>
+  
+                  </form>
+                  
+                  
+  
+                    <div class="status1">
+                      {% for status in status_data %}
+                      {% if status.id == bulb.id %}
+                      {% if status.status == '0' %}
+                      {% else %}
+                      <div class="lds-ripple"><div></div><div></div></div>
+                      {% endif %}
+                      {% endif %}
+                      {% endfor %}
+  
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    function toggleSwitch(bulbId) {
+      const switchElement = document.getElementById(`status-${bulbId}`);
+      const currentValue = switchElement.value;
+      switchElement.value = currentValue === 'on' ? 'off' : 'on';
+      document.getElementById(`form-${bulbId}`).submit();
+    }
+        function toggleMotion(motionId) {
+        const formElement = document.getElementById(`form-motion-${motionId}`);
+        const statusElement = document.getElementById(`status-motion-${motionId}`);
+        const buttonElement = document.getElementById(`btn-motion-${motionId}`);
+        const currentValue = statusElement.value;
+        const newValue = currentValue === 'on' ? 'off' : 'on';
+        statusElement.value = newValue;
+        formElement.submit();
+  
+        buttonElement.textContent = newValue === 'on' ? 'On' : 'Off';
+        buttonElement.classList.toggle('on');
+        buttonElement.classList.toggle('off');
+      }
+      setInterval(function() {
+      $.ajax({
+        url: window.location.href,
+        type: 'GET',
+        success: function(response) {
+          var updatedContent = $(response).find('.bulb-container');
+          $('.bulb-container').html(updatedContent);
+        }
+      });
+    }, 5000);
+  
+  </script>
+
+{% endblock %}

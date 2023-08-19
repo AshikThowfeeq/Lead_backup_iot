@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+  /* toggle switch css */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  p {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 10px;
+    color: #143240;
+    text-align: center;
+    font-size: 14px;
+    font-family: Helvetica, serif;
+  }
+
+  #toggle_checkbox {
+    display: none;
+  }
+
+  label {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    display: block;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    margin: 0 auto;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  label:before {
+    top: 4px; /* Adjusted top position */
+    left: 4px; /* Adjusted left position */
+    width: 22px; /* Adjusted width */
+    height: 22px; /* Adjusted height */
+    border: 2px solid red; /* Adjusted border width */
+    background-color: red;
+  }
+
+  label:after {
+    top: 0;
+    right: 0;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    border: 2px solid #143240; /* Adjusted border width */
+  }
+
+  label:before,
+  label:after {
+    content: "";
+    position: absolute;
+    border-radius: 50px;
+    box-sizing: border-box;
+    transition: 0.5s ease top, 0.5s ease left, 0.5s ease right, 0.5s ease width,
+      0.5s ease height, 0.5s ease border-color, 0.5s ease background-color; /* Added background-color transition */
+  }
+
+  {% for classroom in classrooms %}
+  {% for bulb in classroom.bulb_set.all %}
+  #toggle_checkbox{{bulb.id}}:checked + label:before {
+    top: 0;
+    left: 0;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    border-color: #143240;
+    background-color: white;
+  }
+
+  #toggle_checkbox{{bulb.id}}:checked + label:after {
+    top: 4px; /* Adjusted top position */
+    right: 4px; /* Adjusted right position */
+    width: 22px; /* Adjusted width */
+    height: 22px; /* Adjusted height */
+    border-color: green;
+    background-color: green;
+  }
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  {% endfor %}
+  {% endfor %}
+
+  /* Adjusted spacing */
+  .bulb {
+    margin-bottom: 10px;
+  }
+
+  .bulb h5 {
+    margin-top: 5px;
+  }
+
+  .card {
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .bulb-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .bulb {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  .bulb-switch
+
+</style>
+
+
+<div class="bulb-container">
+  <div class="">
+    {% for classroom in classrooms %}
+    <div class="card">
+      <div class="">
+        <div class="">
+          <h3>{{ classroom.name }}</h3>
+        </div>
+        <div class="">
+          <div class="">
+            {% for bulb in classroom.bulb_set.all %}
+            <div class="bulb">
+              <div class="bulb-switch">
+                <h5>{{ bulb.name }}</h5><br>
+                <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="pin" value="{{ bulb.pin }}">
+                  <input type="hidden" name="status" id="status-{{ bulb.id }}"
+                    value="{% if bulb.status %}on{% else %}off{% endif %}">
+                  <input type="hidden" name="token" value="{{ bulb.token }}">
+                  <input type="checkbox" id="toggle_checkbox{{bulb.id}}" onclick="toggleSwitch('{{ bulb.id }}')"
+                    {% if bulb.status %}checked{% endif %}>
+                  <label for="toggle_checkbox{{bulb.id}}" class="switch"></label>
+                </form>
+                <div class="status">
+                  {% for status in status_data %}
+                  {% if status.id == bulb.id %}
+                  {% if status.status == '0' %}
+                  {% else %}
+                  <div class="lds-ripple"><div></div><div></div></div>
+                  {% endif %}
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+<script>
+  function toggleSwitch(bulbId) {
+    const switchElement = document.getElementById(`status-${bulbId}`);
+    const currentValue = switchElement.value;
+    switchElement.value = currentValue === 'on' ? 'off' : 'on';
+    document.getElementById(`form-${bulbId}`).submit();
+  }
+
+  setTimeout(function() {
+    location.reload();
+  }, 10000); // Refresh the page every 1 minute (60000 milliseconds)
+</script>
+
+
+{% endblock %}
