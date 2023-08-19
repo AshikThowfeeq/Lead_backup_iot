@@ -2,23 +2,57 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Classroom, Bulb,Status,MotionDetection
 import threading,requests
-
+from django.views.generic import View,CreateView,FormView,TemplateView,ListView,UpdateView
+from apps.forms import RegistrationForm,LoginForm
+from django.contrib.auth.models import User
 import requests
+from django.urls import reverse_lazy
+from django.contrib.auth import authenticate,login,logout
 Userver = "blr1.blynk.cloud"
-def login(request):
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        password = request.POST.get('password')
-        if (username == 'Lead@Head' and password == '1234') or \
-                (username == 'Lead@Control' and password == '1234') or \
-                (username == 'Grow@Dev' and password == '1234'):
-            request.session['username'] = username
-            return redirect('index/')
-        else:
-            error_message = "Invalid Login"
-            return render(request, 'login.html', {'error_message': error_message})
 
-    return render(request, 'login.html')
+
+class SignUpView(CreateView):
+    model=User
+    form_class=RegistrationForm
+    template_name="register.html"
+    success_url=reverse_lazy("login")
+
+
+class LoginView(FormView):
+    form_class=LoginForm
+    template_name="login.html"
+
+    def post(self,request,*args,**kwargs):
+        form=LoginForm(request.POST)
+        if form.is_valid():
+            uname=form.cleaned_data.get("username")
+            pwd=form.cleaned_data.get("password")
+
+            usr=authenticate(request,username=uname,password=pwd)
+            
+            if usr:
+                
+                login(request,usr)
+                return redirect("index")
+                
+            else:
+                 return render(request,"login.html",{"form":form})
+
+
+# def login(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('user')
+#         password = request.POST.get('password')
+#         if (username == 'Lead@Head' and password == '1234') or \
+#                 (username == 'Lead@Control' and password == '1234') or \
+#                 (username == 'Grow@Dev' and password == '1234'):
+#             request.session['username'] = username
+#             return redirect('index/')
+#         else:
+#             error_message = "Invalid Login"
+#             return render(request, 'login.html', {'error_message': error_message})
+
+#     return render(request, 'login.html')
 
 def fetch_status(status, status_data):
     url = f"https://{Userver}/external/api/get?token={status.token}&pin={status.pin}"
