@@ -8,6 +8,10 @@ from django.contrib.auth.models import User
 import requests
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+
+
 Userver = "blr1.blynk.cloud"
 
 
@@ -65,6 +69,7 @@ def fetch_status(status, status_data):
     status.status = fetched_status
     status.save()
 
+@login_required
 def index(request):
     classrooms = Classroom.objects.all()
 
@@ -93,7 +98,7 @@ def index(request):
 
     return render(request, 'index.html', context)
 
-
+@login_required
 def bulb_control(request):
     classrooms = Classroom.objects.all()
     motion = MotionDetection.objects.all()
@@ -144,6 +149,7 @@ def update_pin(request, bulb_id):
         
         
         return JsonResponse({}, status=204)
+    
 def update_pin_motion(request, motionDetection_id):
     if request.method == 'POST':
         pin = request.POST.get('pin')
@@ -161,3 +167,8 @@ def update_pin_motion(request, motionDetection_id):
         print(url)
 
     return JsonResponse({}, status=204)
+
+class LogoutView(View):
+    def get(self,request,*args,**kwargs):
+        logout(request)
+        return redirect("login")
