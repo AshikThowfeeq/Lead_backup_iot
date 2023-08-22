@@ -126,7 +126,9 @@
                             <div class="row">
                                 <br>
                                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
-                                    <h3 class="font-weight-bold">Hello Admin!</h3>
+                                    {% if user.is_authenticated %}
+                                    <h3 class="font-weight-bold">Welcome, <span style="color: blue;">{{ user.username }}</span>!</h3>
+                                {% endif %}
                                 </div>
                                 <div class="col-12 col-xl-4">
                                     <div class="justify-content-end d-flex">
@@ -287,14 +289,7 @@
     <!-- Custom js for this page-->
     <script src="{% static 'js/dashboard.js' %}"></script>
     <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
-    <script>
-        // Call the displayPopupMessage() function to show the popup
-        window.addEventListener("DOMContentLoaded", function () {
-            var popupMessage = "Hello Lead, Welcome back!";
-            var popupDuration = 5000; // 6 seconds (in milliseconds)
-            displayPopupMessage(popupMessage, popupDuration);
-        });
-    </script>
+    
 
     <!-- End custom js for this page-->
 </body>

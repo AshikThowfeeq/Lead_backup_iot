@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>Lead Collage</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style1.css' %}">
@@ -10,6 +11,14 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
+<style>
+	.message-error {
+		color: red;
+		font-size: 14px;
+		font-weight: lighter;
+	}
+</style>
+
 <body>
 	<img class="wave" src="{% static 'images/wave.png' %}">
 	<div class="container">
@@ -17,33 +26,71 @@
 			<img src="{% static 'images/bg.svg' %}">
 		</div>
 		<div class="login-content">
-			<form action="" enctype="multipart/form-data" method="post">
-				 {% csrf_token %}
+
+
+
+			<form action="" id="loginForm" enctype="multipart/form-data" method="post">
+				{% csrf_token %}
 				<img src="{% static 'images/Grow Logo.png' %}" style="width:auto;height: 70px;">
 				<br><br><br>
-           		<div class="input-div one">
-           		   <div class="i">
-           		   		<i class="fas fa-user"></i>
-           		   </div>
-           		   <div class="div">
-           		   		<h5>Username</h5>
-           		   		<input for="uname" type="text" class="input" name="username" required>
-           		   </div>
-           		</div>
-           		<div class="input-div pass">
-           		   <div class="i">
-           		    	<i class="fas fa-lock"></i>
-           		   </div>
-           		   <div class="div">
-           		    	<h5>Password</h5>
-           		    	<input for="pwd" type="password" class="input" name="password" required>
-            	   </div>
-            	</div>
+
+				<!-- Start: Display messages -->
+				<!-- {% if messages %}
+				<div class="messages">
+					{% for message in messages %}
+					<p class="message-{{ message.tags }}">{{ message }}</p>
+					{% endfor %}
+				</div>
 				<br>
-            	<input type="submit" class="btn" value="Login">
-            </form>
-        </div>
-    </div>
-    <script type="text/javascript" src="{% static 'main1.js' %}"></script>
+				{% endif %} -->
+				<!-- End: Display messages -->
+
+				<div class="input-div one">
+					<div class="i">
+						<i class="fas fa-user"></i>
+					</div>
+					<div class="div">
+						<h5>Username</h5>
+						<input for="uname" type="text" class="input" name="username" required>
+					</div>
+				</div>
+				<div class="input-div pass">
+					<div class="i">
+						<i class="fas fa-lock"></i>
+					</div>
+					<div class="div">
+						<h5>Password</h5>
+						<input for="pwd" type="password" class="input" name="password" required>
+					</div>
+				</div>
+				<br>
+				<input type="submit" class="btn" value="Login">
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript" src="{% static 'main1.js' %}"></script>
+
+	<!-- Start: Show the 'You need to login first!' popup if the popup parameter is present -->
+	{% if 'popup' in request.GET %}
+	<script>
+		alert("You need to login first!");
+	</script>
+	{% endif %}
+	<!-- End: Show the 'You need to login first!' popup -->
+	
+
+	<!-- Start: Display messages -->
+	{% if messages %}
+	<script>
+		{% for message in messages %}
+		{% if message.tags == 'error' %}
+		alert('{{ message }}');
+		{% endif %}
+		{% endfor %}
+	</script>
+	{% endif %}
+	<!-- End: Display messages -->
+	
 </body>
+
 </html>

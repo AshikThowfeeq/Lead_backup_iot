@@ -2,15 +2,14 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Classroom, Bulb,Status,MotionDetection
 import threading,requests
-from django.views.generic import View,CreateView,FormView,TemplateView,ListView,UpdateView
+from django.views.generic import View,CreateView,FormView
 from apps.forms import RegistrationForm,LoginForm
 from django.contrib.auth.models import User
 import requests
 from django.urls import reverse_lazy
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache
-
+from django.contrib import messages
 
 Userver = "blr1.blynk.cloud"
 
@@ -40,8 +39,13 @@ class LoginView(FormView):
                 return redirect("index")
                 
             else:
-                 return render(request,"login.html",{"form":form})
+                # Check if the username exists in the database
+                if User.objects.filter(username=uname).exists():
+                    messages.error(request, 'Incorrect password.')  # Password is wrong but username is right
+                else:
+                    messages.error(request, 'User does not exist.')  # Username is wrong
 
+                return render(request, "login.html", {"form": form})
 
 # def login(request):
 #     if request.method == 'POST':
